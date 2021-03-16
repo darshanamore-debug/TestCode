@@ -1,0 +1,39 @@
+trigger contactCountOnAccount on Contact (after insert, after update, after delete) {
+    
+    List<Contact> con = new List<Contact>();
+    Set<Id> acctId = new Set<Id>();
+    if(Trigger.isInsert|| Trigger.isUpdate){
+    for(Contact c: trigger.new){
+        {
+            if(c.AccountId!= null)
+            acctId.add(c.AccountId);
+        }
+    }
+    }
+    else if(Trigger.isDelete){
+    for(Contact c: trigger.old){
+        {
+            if(c.AccountId!= null)
+            acctId.add(c.AccountId);
+        }
+    }
+    }
+    
+    List<Account> conCount= new List<Account>();
+  
+    List<AggregateResult> ac= [select AccountId AccId, count(id) ContactCount from contact where AccountId in:acctId GROUP BY AccountId];
+  
+    for(AggregateResult res:ac)
+    {
+        Account a = new Account();
+         
+          a.Id = (Id)res.get('AccId'); 
+          a.ZenI__Count_of_Contact__c = (Integer) res.get('ContactCount');
+        
+          conCount.add(a);
+        
+    }
+    
+    update conCount;
+    
+}
