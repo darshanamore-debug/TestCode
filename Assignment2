@@ -1,0 +1,125 @@
+2) Assignment:  Build a basic lightning component that can query a list of 10 most recently created accounts and display it using a lightning app. 
+
+
+
+Aura Application:
+
+<aura:application extends="force:slds">
+    <c:RecentlistOfAccountsTest/>
+	
+</aura:application>
+
+=================================================================================================================== 
+Aura component:  RecentlistOfAccount 
+
+
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,
+                            flexipage:availableForRecordHome,force:hasRecordId,
+                            forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+                            access="global" >
+    <aura:attribute name="AccountName" type="String" />
+
+   <aura:attribute name="Industry" type="String" />
+
+    <aura:attribute name="Type" type="String" />    
+
+  <div class="demo-only" style="width: 30rem;">
+
+    <article class="slds-tile">
+
+        <h3 class="slds-tile__title slds-truncate" title="Account details"><a href="javascript:void(0);">Account details</a></h3>
+
+        <div class="slds-tile__detail">
+
+            <dl class="slds-list_horizontal slds-wrap">
+
+                <dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Account Name:</dt>
+
+                <dd class="slds-item_detail slds-truncate" title="Description for first label">{!v.AccountName}</dd>
+
+
+ 
+                <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Industry:</dt>
+
+                <dd class="slds-item_detail slds-truncate" title="Description for second label">{!v.Industry}</dd>
+
+                
+                
+                <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Third Label">Type:</dt>
+
+                <dd class="slds-item_detail slds-truncate" title="Description for Third label">{!v.Type}</dd>           
+
+                </dl>
+
+    </div>
+
+    </article>
+
+  </div>
+	
+</aura:component>
+
+
+
+
+
+===========================================================================================================================
+  Aura component:  RecentlistOfAccountsTest 
+
+
+
+<aura:component controller="FetchAccountDetails" implements="flexipage:availableForAllPageTypes" access="global" >
+
+    <aura:attribute name="accountList" type="account[]" />
+
+                <aura:handler name="init" value="{!this}" action="{!c.doInit}" />   
+
+     <aura:iteration items="{!v.accountList}" var="item">
+
+        <c:RecentlistOfAccounts accountName="{!item.Name}" Industry="{!item.Industry}" Type="{!item.Type}"  />
+
+         <br/>
+
+    </aura:iteration>
+
+</aura:component>
+====================================================================================================================================
+
+apexcontroller: FetchAccountDetails 
+
+public class FetchAccountDetails {   
+
+    @AuraEnabled
+
+    public static list<Account> fetchAccountList(){
+
+        return [select Id,name,Industry,Type from account limit 10];             
+
+    }
+
+}
+
+===========================================================================================================================================
+
+Client side controller
+
+
+({
+
+                doInit : function(component, event, helper) {
+
+                                var action = component.get("c.fetchAccountList");       
+
+        action.setCallback(this, function(data){
+
+            component.set("v.accountList",data.getReturnValue());
+
+        });       
+
+        $A.enqueueAction(action);
+
+                }
+
+})
+
+===========================================================================================================================================
